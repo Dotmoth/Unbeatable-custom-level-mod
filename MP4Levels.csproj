@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Build:  dotnet build -c Release -p:GamePath="C:\Program Files (x86)\Steam\steamapps\common\UNBEATABLE [white label]"
+    Needs BepInEx 5 already installed in the game folder (for BepInEx.dll / 0Harmony.dll).
+    The dll is written to bin\Release\ and copied to <game>\BepInEx\plugins\MP4Levels\.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>MP4Levels</AssemblyName>
+    <RootNamespace>MP4Levels</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Optimize>true</Optimize>
+    <DebugType>none</DebugType>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <NoStdLib>true</NoStdLib>
+    <NoWarn>$(NoWarn);CS1701;CS1702;MSB3277</NoWarn>
+    <GamePath Condition="'$(GamePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\UNBEATABLE [white label]</GamePath>
+    <Managed>$(GamePath)\UNBEATABLE [white label]_Data\Managed</Managed>
+    <BepInExCore>$(GamePath)\BepInEx\core</BepInExCore>
+    <!-- compile against the game's own Mono class libraries, not the .NET Framework reference pack -->
+    <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
+    <FrameworkPathOverride>$(Managed)</FrameworkPathOverride>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <GameRef Include="mscorlib;netstandard;System;System.Core;UnityEngine;UnityEngine.CoreModule;UnityEngine.IMGUIModule;UnityEngine.InputLegacyModule;UnityEngine.UI;UnityEngine.UIModule;UnityEngine.VideoModule;UnityEngine.TextRenderingModule;Assembly-CSharp;Assembly-CSharp-firstpass;FMODUnity" />
+    <Reference Include="@(GameRef->'$(Managed)\%(Identity).dll')" Private="false" />
+    <Reference Include="$(BepInExCore)\BepInEx.dll" Private="false" />
+    <Reference Include="$(BepInExCore)\0Harmony.dll" Private="false" />
+  </ItemGroup>
+
+  <Target Name="CopyToGame" AfterTargets="Build" Condition="Exists('$(GamePath)\BepInEx')">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GamePath)\BepInEx\plugins\MP4Levels" />
+  </Target>
+
+</Project>
